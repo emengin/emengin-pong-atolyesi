@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Pong Atölyesi: tek başına veya bir arkadaşınla oynayabileceğin, çevrimdışı çalışan bir masa tenisi oyunu.">
+  <meta name="theme-color" content="#f6f4ec">
+  <title>Pong Atölyesi — Gücü yakala, ralliyi değiştir.</title>
+  <script src="js/theme.js"></script>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/engine.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#oyun">Oyuna geç</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="Pong Atölyesi ana sayfa"><span class="brand-mark" aria-hidden="true"><i></i><b></b><i></i></span>PONG<span class="brand-light">ATÖLYESİ</span></a>
+      <div class="header-right"><span class="edition">BİLP1117 · WEB PROGRAMLAMA I</span><div class="header-toggles"><button class="theme-button" id="theme-button" type="button" aria-pressed="false" title="Koyu temayı aç"><span id="theme-icon" aria-hidden="true">☾</span> <span id="theme-label">Koyu tema</span></button><button class="sound-button" id="sound-button" type="button" aria-pressed="false" title="Oyun seslerini aç">Ses <span id="sound-label">kapalı</span><span aria-hidden="true" class="sound-icon">♫</span></button></div></div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div><p class="eyebrow"><span></span> KLASİK OYUN, YENİ BİR RALLİ</p><h1 id="page-title">Bir top. İki raket.<br><em>Gerisi refleks.</em></h1><p class="intro-copy">Raketini hareket ettir, topu karşıla, ritmi yakala.<br>Bilgisayara meydan oku ya da bir arkadaşını maça çağır.</p></div>
+        <div class="intro-note" aria-hidden="true"><span class="orbit-ball"></span><span class="note-number">01 / 01</span><p>Az kural.<br>Bol rekabet.</p><span class="note-arrow">↙</span></div>
+      </section>
+
+      <section class="play-layout" id="oyun" aria-label="Pong oyun alanı">
+        <div class="arena-panel">
+          <div class="arena-toolbar"><span class="arena-label"><span class="live-dot"></span> MERKEZ KORT</span><span id="match-label">TEK OYUNCU · NORMAL · 7 SAYI</span></div>
+          <div class="court" id="court">
+            <div class="scoreboard" aria-label="Maç skoru"><div class="score-side"><span id="left-name">SEN</span><strong id="left-score">0</strong><i class="player-line"></i></div><span class="score-divider">:</span><div class="score-side"><span id="right-name">BİLGİSAYAR</span><strong id="right-score">0</strong><i class="opponent-line"></i></div></div>
+            <canvas id="game-canvas" width="960" height="560" tabindex="0" aria-label="Pong oyun sahası. Sol raket W ve S, sağ raket yukarı ve aşağı ok tuşlarıyla hareket eder. Boşluk tuşuyla duraklatılır.">Bu oyun Canvas destekleyen bir tarayıcı gerektirir.</canvas>
+            <div class="game-overlay" id="game-overlay"><div class="overlay-content"><span class="overlay-tag" id="overlay-tag">KORT SENİN</span><h2 id="overlay-title">İlk servis senden.</h2><p id="overlay-copy">Raketini hazırla. İlk 7 sayıya ulaşan kazanır.</p><button class="button button-primary" id="overlay-button" type="button">Maça başla <span aria-hidden="true">↗</span></button><span class="overlay-hint" id="overlay-hint">W / S veya ↑ / ↓ ile hareket et</span></div></div>
+            <div class="countdown" id="countdown" aria-hidden="true" hidden>3</div>
+            <div class="power-toast" id="power-toast" role="status" aria-live="polite" hidden></div>
+          </div>
+          <div class="power-hud" aria-label="Özel güçlerin durumu"><div class="power-hud-heading"><span class="power-mode-label" id="power-mode-label">✳ GÜÇLER AÇIK</span><span id="pickup-status">Topla yakala, son vuran kazansın.</span></div><div id="active-effects" class="active-effects" aria-label="Aktif etkiler ve kalan süreleri"></div></div>
+          <div class="arena-footer"><span id="game-status" role="status" aria-live="polite">Hazır olduğunda maça başla.</span><div class="match-actions"><button type="button" id="pause-button" disabled><span aria-hidden="true">Ⅱ</span> Duraklat</button><button type="button" id="restart-button" disabled><span aria-hidden="true">↻</span> Yeni maç</button></div></div>
+          <div class="touch-controls" id="touch-controls"><div><span>Sol raket</span><button type="button" data-side="left" data-direction="-1" aria-label="Sol raketi yukarı hareket ettir">↑</button><button type="button" data-side="left" data-direction="1" aria-label="Sol raketi aşağı hareket ettir">↓</button></div><div id="right-touch"><span>Sağ raket</span><button type="button" data-side="right" data-direction="-1" aria-label="Sağ raketi yukarı hareket ettir">↑</button><button type="button" data-side="right" data-direction="1" aria-label="Sağ raketi aşağı hareket ettir">↓</button></div></div>
+        </div>
+
+        <aside class="settings-panel" aria-labelledby="settings-title">
+          <div class="panel-heading"><h2 id="settings-title">Maçı kur</h2><span>01</span></div>
+          <fieldset><legend>OYUN MODU</legend><div class="mode-options"><label class="choice mode-choice"><input type="radio" name="mode" value="single" checked><span><b>Tek oyuncu</b><small>Sen × bilgisayar</small></span><span class="choice-dot" aria-hidden="true"></span></label><label class="choice mode-choice"><input type="radio" name="mode" value="multi"><span><b>İki oyuncu</b><small>Aynı klavye, iki rakip</small></span><span class="choice-dot" aria-hidden="true"></span></label></div></fieldset>
+          <fieldset id="difficulty-field"><legend>ZORLUK SEVİYESİ</legend><div class="segmented"><label><input type="radio" name="difficulty" value="easy"><span>Kolay</span></label><label><input type="radio" name="difficulty" value="normal" checked><span>Normal</span></label><label><input type="radio" name="difficulty" value="hard"><span>Zor</span></label></div><p class="field-note" id="difficulty-note">Dengeli tempo, keyifli bir rekabet.</p></fieldset>
+          <fieldset><legend>KAÇ SAYIDA BİTSİN?</legend><div class="segmented target-options"><label><input type="radio" name="target" value="5"><span>5</span></label><label><input type="radio" name="target" value="7" checked><span>7</span></label><label><input type="radio" name="target" value="11"><span>11</span></label></div></fieldset>
+          <label class="power-toggle"><span><b>Özel güçler</b><small>Kortu sürprizlerle doldur.</small></span><input id="powerups-toggle" type="checkbox" checked><span class="toggle-track" aria-hidden="true"></span></label>
+          <div class="settings-tip"><span aria-hidden="true">↗</span><p id="settings-note">Ayarlarını seç, korta çık.<br>İlk 7 sayıya ulaşan maçı alır.</p></div>
+          <div class="best-rally"><span>BU CİHAZDA EN UZUN RALLİ</span><div><strong id="best-rally">0</strong><span>raket vuruşu</span><span class="rally-symbol" aria-hidden="true">✳</span></div></div>
+        </aside>
+      </section>
+
+      <section class="below-court" aria-label="Oyun kontrolleri ve ipuçları">
+        <div class="controls-guide"><h2><span>02</span> Kontrol sende.</h2><div class="control-row"><span class="control-player">SOL RAKET</span><kbd>W</kbd><kbd>S</kbd><span id="arrow-guide">veya <kbd>↑</kbd><kbd>↓</kbd></span></div><div class="control-row" id="right-key-guide" hidden><span class="control-player">SAĞ RAKET</span><kbd>↑</kbd><kbd>↓</kbd></div><div class="control-row"><span class="control-player">DURAKLAT</span><kbd class="wide-key">BOŞLUK</kbd><span>Bir nefes al.</span></div><p class="mobile-tip">Dokunmatik ekranda sahada parmağını sürükle veya ok butonlarını kullan.</p></div>
+        <div class="rally-guide"><h2><span>03</span> Her vuruş bir karar.</h2><p>Raketin ortasıyla düz, kenarlarıyla açılı vur. Ralli uzadıkça top hızlanır. Açıyı değiştir, rakibinin dengesini boz.</p><div class="rally-meter"><span>BU RALLİ</span><strong id="rally-count">0 <small>vuruş</small></strong><div class="meter-track"><div id="rally-fill"></div></div></div></div>
+      </section>
+      <section class="power-guide" aria-labelledby="power-guide-title"><div class="power-guide-intro"><div><p class="eyebrow">RALLİYE BİR SÜRPRİZ KAT</p><h2 id="power-guide-title">Gücü yakala.<br><em>Oyunu değiştir.</em></h2></div><p>Sahada beliren simgelere topu değdir. Gücü, o topa son vuran oyuncu kazanır. Raket etkileri 8, turbo 6 saniye sürer; her sayıda güçler sıfırlanır.</p></div><div id="power-legend" class="power-legend"></div><p class="power-rule">Çoklu top: En fazla 3 top. İlk kaçan top tek sayı verir ve yeni servis başlar. Aynı özellik üst üste birikmez; süresi yenilenir. Karşıt etki öncekinin yerini alır.</p></section>
+      <details class="about-project"><summary>Oyunun arkasında ne var? <span aria-hidden="true">+</span></summary><div><p>Bu Pong yorumu; refleks, zamanlama ve açı seçimini küçük bir oyun deneyimine dönüştürür. Tek oyunculu modda pratik yapabilir, iki oyunculu modda aynı cihazda rekabet edebilirsin.</p><p>HTML sayfanın yapısını, CSS görünümünü, JavaScript ise klavye ve dokunma girdilerini, bilgisayar rakibini, çarpışmaları ve skor akışını yönetir. Raketin hangi noktasına vurduğun topun dönüş açısını değiştirir.</p></div></details>
+    </main>
+    <footer class="site-footer"><span>PONG ATÖLYESİ <span class="footer-cross">×</span> BİLP1117</span><span>Bir mola ver. Bir ralli daha oyna. <span aria-hidden="true">↗</span></span></footer>
+  </div>
+</body>
+</html>
