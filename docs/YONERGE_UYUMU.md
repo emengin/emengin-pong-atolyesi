@@ -11,11 +11,13 @@ Bu eşleştirme, kullanıcı tarafından sağlanan `BILP1117_WEBI_Proje_Yonerges
 | Anlamlı etkileşim | Raket hareketi, topun temas noktasına göre açı, hız artışı, skor ve maç sonucu |
 | Yaratıcı oyun etkileşimleri | Rastgele konumlu altı güç, topa son vuran oyuncuya etki, süreli raket değişimleri ve çoklu top |
 | Kullanıcı tercihleri | Klasik/güçlü Pong seçimi, kaydedilen açık/koyu tema |
-| Kod kalitesi denetimi | ESLint yapılandırması, npm lint/test komutları, 31 motor ve 11 DOM akış testi |
+| Kod kalitesi denetimi | ESLint yapılandırması, npm lint/test komutları, 36 motor ve 21 DOM akış testi |
 | Çalışan kontroller | Başlatma, duraklatma/devam, yeni maç onayı, ses, mod, zorluk ve hedef skor |
 | Anlaşılır geri bildirim | Canlı skor, servis sayımı, durum metni, ralli sayacı ve sonuç katmanı |
 | Okunabilir ve tutarlı arayüz | Krem zemin, yeşil saha, iki raket için ayrı renk, tutarlı kontroller |
 | Ekran ve kullanım biçimine uyum | CSS medya sorguları; klavye, fare ve dokunma girdileri; görünür odak stilleri |
+| Tam ekran ve mobil oyun | Native/fallback tam ekran, yatay/dikey düzen, büyük dokunma hedefleri, iki parmak, ekran yönünde güvenli duraklama |
+| İmkânsız rakip | Çok kısa tepki, hızlı hareket, sıfır hedef hatası ve duvar sekmelerini hesaplayan hedefleme |
 | Yerel çalışma | Çift tıklamayla açılan, uzak bağımlılıksız dosyalar |
 | Three.js isteğe bağlı | Oyun 2D olduğu için gerek duyulmadı |
 | Kamera adımları, kullanılıyorsa | Kamera veya hareket takibi kullanılmıyor |

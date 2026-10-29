@@ -20,6 +20,8 @@ Pong, iki raketin topu karşılıklı çevirdiği basit bir oyundur. Bu projede 
 8. Kısa bir maçı bitir ve sonucu göster. Zaman yetmezse puanı yapay olarak değiştirmek yerine önceden kısa bir demo provası yap.
 9. Özel güçler açık bir maçta topu bir simgeye değdir. Etkinin topa son vuran oyuncuya verildiğini, süre etiketini ve çoklu topta ilk kaçanın tek sayı verdiğini göster.
 10. Koyu/açık temayı değiştir; maçın devam ettiğini ve yenilemede tercihin korunduğunu göster. Kod kalitesi için `npm run lint`, doğrulama için `npm test` komutlarını açıkla.
+11. Tam ekran düğmesini kullan; skorun korunduğunu, oyunun durakladığını ve Oyuna dön ile devam ettiğini göster. Telefonu yatay/dikey çevir; dokunmatik okları ve iki parmağı dene.
+12. İmkânsız seviyesini seçip topun duvar sekmelerinden sonraki geliş konumunu bilgisayarın hesapladığını anlat.
 
 ## 3 Tasarım kararları
 
@@ -33,7 +35,7 @@ Bu oturumda kullanıcı oyun olarak Pong'u seçti ve Word yönergesinin dikkate 
 
 Kullanıcının sonraki isteğiyle rastgele güç simgeleri, boyut/hız etkileri, çoklu top, açık/koyu tema ve ESLint eklendi. Topa son vuran oyuncunun gücü kazanması, etkilerin sınırlı süreli olması ve ilk kaçan topun tek sayı vermesi bu uygulamada belirlenen oyun kurallarıdır. Öğrenci bu kararları deneyerek değerlendirmelidir.
 
-Motor için 31 otomatik davranış testi ve DOM ortamında 11 arayüz testi geçti. ESLint sıfır hata ve uyarıyla tamamlandı. Düğmeden devam edince, sesi veya temayı değiştirince klavye odağının oyun sahasına dönmesi sağlandı. Dik açılı çoklu top üretiminde yeni topların aynı yörüngede kalmaması için açılar içeriye doğru ayrıldı. Tarayıcı erişim servisi kullanılamadığı için gerçek tarayıcıdaki görsel ve giriş kontrolü tamamlanamadı. Son canlı kontrolü kendi bilgisayarında yapıp bulgularını ekle.
+Motor için 36 otomatik davranış testi ve DOM ortamında 21 arayüz testi geçti. ESLint sıfır hata ve uyarıyla tamamlandı. Yeni istekte tam ekran, İmkânsız seviyesi ve mobil kontrol düzeni eklendi. Görünüm veya ekran yönü değişince oyun duraklatılıp basılı girdiler temizlendi. İmkânsız rakip için yansıtılmış koordinat hesabıyla duvar sekmeleri tahmin edildi. Tarayıcı erişim servisi kullanılamadığı için gerçek tarayıcıdaki görsel ve giriş kontrolü tamamlanamadı. Son canlı kontrolü kendi bilgisayarında yapıp bulgularını ekle.
 
 AI aracı ve rolü: **OpenAI Codex**; şartları inceleme, fikirleri uygulama, HTML/CSS/JS üretimi, oyun motoru testleri ve açıklama dosyalarını hazırlama. Kullanılan başka bir araç varsa yalnız gerçekten kullandıklarını ekle.
 
@@ -101,5 +103,9 @@ AI aracı ve rolü: **OpenAI Codex**; şartları inceleme, fikirleri uygulama, H
 **Projedeki kendi katkın ne?** Bu soruya rehberdeki metni tekrar ederek değil, gerçekten yaptığın karar, deneme ve değişiklikleri göstererek yanıt ver.
 
 ## 8 Son prova
+
+Yeni dosya `display.js`, Fullscreen API ile oyun panelini büyütür. API desteklenmediğinde `.is-expanded` sınıfıyla tarayıcı penceresine sığdırır; skor ve kontroller panelin içinde kalır. Tam ekran değişiminde `pong-view-change` olayı `app.js` içindeki duraklatmayı çalıştırır. Mobilde `pointerId`, aynı anda iki parmağın farklı raketlere ait olmasını sağlar. `pointercancel` parmağın kontrolünün kaybolması durumunda hareketi temizler.
+
+İmkânsız seviyesinde `predictIntercept()`, topun sağ rakete kadar uçuş süresini bulur. Dikey koordinatı iki saha yüksekliği uzunluğunda bir aralıkta katlayarak bir veya birden çok duvar sekmesini hesaplar. Bilgisayar bu geliş noktasına sınırlı hızla hareket eder; büyütme/küçültme ve yavaşlatma kuralları geçerlidir.
 
 Önce demo akışını baştan sona kendin uygula. Ardından `app.js` içinde bir tuş olayını, `engine.js` içinde `step()` ve `awardPoint()` fonksiyonlarını açıp kullanıcı aksiyonuyla ilişkisini anlat. Değiştirdiğin son kaynakları ZIP'e al; sunumda farklı bir kopya kullanma.

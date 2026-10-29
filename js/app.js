@@ -33,8 +33,8 @@
   const names = () => engine.config.mode === 'multi' ? ['OYUNCU 1', 'OYUNCU 2'] : ['SEN', 'BİLGİSAYAR'];
   const selected = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
   const readConfig = () => ({ mode: selected('mode'), difficulty: selected('difficulty'), target: Number(selected('target')), powerups: $('powerups-toggle').checked });
-  const difficultyNames = { easy: 'KOLAY', normal: 'NORMAL', hard: 'ZOR' };
-  const difficultyNotes = { easy: 'Daha sakin tempo, alışmak için ideal.', normal: 'Dengeli tempo, keyifli bir rekabet.', hard: 'Hızlı top, daha çevik bir rakip.' };
+  const difficultyNames = { easy: 'KOLAY', normal: 'NORMAL', hard: 'ZOR', impossible: 'İMKÂNSIZ' };
+  const difficultyNotes = { easy: 'Daha sakin tempo, alışmak için ideal.', normal: 'Dengeli tempo, keyifli bir rekabet.', hard: 'Hızlı top, daha çevik bir rakip.', impossible: 'Sekmeleri hesaplayan, çok hızlı bir rakip. Hazır mısın?' };
 
   function clearInput() {
     keys.clear();
@@ -104,6 +104,7 @@
     $('difficulty-field').disabled = multi;
     $('difficulty-note').textContent = multi ? 'İki oyunculu modda seviye eşittir.' : difficultyNotes[config.difficulty];
     $('right-touch').hidden = !multi;
+    $('touch-controls').dataset.mode = config.mode;
     $('right-key-guide').hidden = !multi;
     $('arrow-guide').hidden = multi;
     $('overlay-hint').textContent = matchMedia('(pointer: coarse)').matches
@@ -283,6 +284,7 @@
 
   function draw() {
     const w = Pong.WIDTH, h = Pong.HEIGHT;
+    context.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
     context.clearRect(0, 0, w, h);
     const dark = document.documentElement.dataset.theme === 'dark';
     context.fillStyle = dark ? '#10271f' : '#18312b'; context.fillRect(0, 0, w, h);
@@ -316,6 +318,15 @@
         context.lineWidth = 3; context.beginPath(); context.arc(powerFlash.x, powerFlash.y, 30 + age * 100, 0, Math.PI * 2); context.stroke(); context.restore();
       } else powerFlash = null;
     }
+  }
+
+  function resizeCanvas() {
+    const box = canvas.getBoundingClientRect();
+    if (!box.width || !box.height) return;
+    const density = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.round(box.width * density);
+    const height = Math.round(box.height * density);
+    if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
   }
 
   function drawPickups() {
@@ -376,6 +387,11 @@
   document.addEventListener('pong-theme-change', () => {
     if (['playing', 'countdown', 'between'].includes(engine.state)) canvas.focus({ preventScroll: true });
   });
+  document.addEventListener('pong-view-change', () => {
+    clearInput();
+    lastTime = 0;
+    if (engine.pause()) { updateInterface(); $('overlay-button').focus({ preventScroll: true }); }
+  });
 
   window.addEventListener('keydown', (event) => {
     const interactive = event.target.closest('button,input,select,textarea,summary,a');
@@ -410,6 +426,7 @@
   ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((name) => canvas.addEventListener(name, (event) => pointers.delete(event.pointerId)));
   document.querySelectorAll('.touch-controls button').forEach((button) => {
     button.addEventListener('pointerdown', (event) => {
+      if (!['playing', 'countdown', 'between'].includes(engine.state)) return;
       event.preventDefault(); button.setPointerCapture(event.pointerId);
       touchDirections.set(event.pointerId, { side: button.dataset.side, direction: Number(button.dataset.direction) });
     });
@@ -419,6 +436,9 @@
   window.addEventListener('pagehide', () => { cancelAnimationFrame(frameId); loseFocus(); });
   window.addEventListener('pageshow', (event) => { if (event.persisted) { lastTime = 0; frameId = requestAnimationFrame(frame); } });
   buildPowerLegend();
+  window.addEventListener('resize', resizeCanvas);
+  if (window.ResizeObserver) new ResizeObserver(resizeCanvas).observe(canvas);
+  resizeCanvas();
   syncSettings();
   updateInterface();
   frameId = requestAnimationFrame(frame);

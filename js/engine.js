@@ -16,7 +16,8 @@
   const LEVELS = {
     easy: { speed: 265, reaction: 0.23, error: 58, ballSpeed: 360 },
     normal: { speed: 350, reaction: 0.14, error: 32, ballSpeed: 420 },
-    hard: { speed: 445, reaction: 0.075, error: 15, ballSpeed: 480 }
+    hard: { speed: 445, reaction: 0.075, error: 15, ballSpeed: 480 },
+    impossible: { speed: 980, reaction: 0.012, error: 0, ballSpeed: 620, predict: true }
   };
   const POWERUPS = {
     turbo: { title: 'Turbo top', glyph: '»', color: '#f3d77c', description: 'Tüm topları 6 saniye hızlandırır.', duration: TURBO_DURATION },
@@ -209,12 +210,22 @@
         const approaching = this.balls.filter(ball => ball.vx > 0 && ball.x <= this.right.x)
           .sort((a, b) => (this.right.x - a.x) / a.vx - (this.right.x - b.x) / b.vx)[0];
         this.aiTarget = approaching && this.state === 'playing'
-          ? approaching.y + (this.random() * 2 - 1) * level.error : HEIGHT / 2;
+          ? (level.predict ? this.predictIntercept(approaching) : approaching.y) + (this.random() * 2 - 1) * level.error
+          : HEIGHT / 2;
         this.aiTimer = level.reaction;
       }
       const distance = level.speed * this.right.speedMultiplier * dt;
       const desired = this.aiTarget - this.right.height / 2;
       this.right.y = clamp(this.right.y + clamp(desired - this.right.y, -distance, distance), 0, HEIGHT - this.right.height);
+    }
+
+    predictIntercept(ball) {
+      const flightTime = Math.max(0, (this.right.x - BALL_RADIUS - ball.x) / ball.vx);
+      const span = HEIGHT - 2 * BALL_RADIUS;
+      // Yansıtılmış koordinat topun birden çok duvar sekmesini de hesaba katar.
+      const projected = ball.y - BALL_RADIUS + ball.vy * flightTime;
+      const folded = ((projected % (2 * span)) + 2 * span) % (2 * span);
+      return BALL_RADIUS + (folded > span ? 2 * span - folded : folded);
     }
 
     updatePowers(dt) {

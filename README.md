@@ -28,12 +28,25 @@ GitHub CLI ile giriş yapılıp kaynaklar depoya gönderildikten sonra Pages kay
 | Fareyle kontrol | Sahaya basılı tutarak sürükleme |
 | Ses | Sağ üstteki Ses düğmesi |
 | Açık / koyu tema | Sağ üstteki tema düğmesi |
+| Tam ekran | Kort başlığındaki Tam ekran / Küçült düğmesi; çıkış için Esc de kullanılabilir |
 
 İki kişilik dokunmatik oyunda her oyuncu sahanın kendi yarısına dokunur; aynı anda iki parmak kullanılabilir. İki kişilik klavye oyununda bazı klavyelerin eşzamanlı tuş algılama sınırı olabilir; gerekirse fare/dokunmatik kontrol kullanılabilir.
 
 İlk 5, 7 veya 11 sayıya ulaşan kazanır. Top rakibin arkasından çıktığında sayı alırsın. Raketin ortası düz, kenarları açılı vuruş üretir. Her raket temasında top biraz hızlanır; üst sınır vardır. Sayıdan sonra raketler ortalanır, kısa servis beklemesi olur. Oyun sırasında ayarlar kilitlenir; **Yeni maç** ile sıfırlamayı onaylayıp ayarları değiştirebilirsin. Sekme veya pencere odağı kaybolursa oyun duraklar.
 
 Sesler Web Audio API ile üretilir; ses dosyası indirilmez. En uzun ralli, tarayıcı izin verirse `localStorage` içinde bu cihazda saklanır. Depolama engellense de oyun çalışır. Bu rekor farklı tarayıcılarda veya dosya konumlarında paylaşılmayabilir.
+
+## Tam ekran ve mobil kullanım
+
+Kort başlığındaki **Tam ekran** düğmesi oyunu skor, güç göstergeleri ve kontrolleriyle birlikte büyütür. Tarayıcı destekliyorsa Fullscreen API kullanılır; desteklemiyorsa veya isteği reddediyorsa oyun tarayıcı penceresini kaplayan görünüme geçer. Bu durumda tarayıcının adres çubuğu kalabilir. **Küçült** düğmesi veya **Esc** ile normal görünüme dönülür.
+
+Görünüm veya ekran yönü değişince basılı girdiler temizlenir ve aktif oyun duraklar. Skor ve etki süreleri korunur; **Oyuna dön** ile devam edilir. Geniş görünümde sayfanın dışındaki ayarlar klavye odağı alamaz. Çıkışta tekrar kullanılabilir hâle gelir.
+
+Telefon ve tabletlerde sahada parmağını sürükleyebilir veya büyük ok butonlarına basılı tutabilirsin. İki kişilik maçta iki ayrı parmak aynı anda iki raketi yönetebilir. Parmağın kaldırılması veya dokunmanın iptal edilmesi hareketi durdurur. Yatay tam ekran görünümünde oklar kortun iki yanına taşınır; dikey görünüm de desteklenir. Daha geniş kort için telefonu yatay çevirebilirsin. Çentik ve ekran kenarı boşlukları CSS safe-area değerleriyle korunur. Canvas çözünürlüğü ekran yoğunluğuna göre, en fazla 2 kat olacak şekilde ayarlanır.
+
+## Zorluk seviyeleri
+
+Kolay, Normal ve Zor seviyeleri farklı hareket hızı, tepki süresi ve hedef hatası kullanır. **İmkânsız** seviyesinde başlangıç top hızı 620 piksel/saniyedir. Bilgisayar 980 piksel/saniye hızla hareket eder, 0.012 saniyelik tepki aralığı ve sıfır hedef hatası kullanır. Topun kendi tarafına geliş noktasını duvar sekmelerini de hesaplayarak öngörür. Çoklu topta en erken gelecek topa öncelik verir. Bu ad çok yüksek zorluğu ifade eder; bilgisayar ışınlanmaz, güç etkilerine ve saha sınırlarına uyar, mutlak yenilmezlik garantisi yoktur. İki kişilik modda zorluk seçimi kullanılmaz.
 
 ## Özel güçler
 
@@ -63,6 +76,7 @@ pong/
   js/engine.js               Hareket, yapay rakip, çarpışma ve skor
   js/app.js                  Kullanıcı olayları, Canvas çizimi, ses ve DOM
   js/theme.js                Sistem tercihi, tema düğmesi ve yerel kayıt
+  js/display.js              Tam ekran, geniş görünüm ve saha boyutlandırma
   assets/favicon.svg         Proje için çizilmiş yerel simge
   docs/SUNUM_REHBERI.md       Demo akışı ve kod anlatımı
   docs/YONERGE_UYUMU.md       Yönergedeki koşulların karşılıkları
@@ -83,7 +97,7 @@ HTML ve CSS arayüzü oluşturur. Canvas 2D API oyun sahasını çizer. `Pong.En
 
 ## Doğrulama
 
-Oyun motorundaki 31 davranış testi ve gerçek uygulama betiklerini DOM ortamında çalıştıran 11 arayüz testi geçti. Çarpışmalar, hedef skor, güçlerin doğru oyuncuya gitmesi, etki süreleri, çoklu top sınırı, tek sayılık sonuç, yeni maç temizliği, tema kaydı ve depolama kapalıyken çalışma denetlendi. ESLint denetimi sıfır hata ve sıfır uyarıyla geçti. JavaScript sözdizimi ve yerel dosya bağlantıları da denetlendi.
+Oyun motorundaki 36 davranış testi ve gerçek uygulama betiklerini DOM ortamında çalıştıran 21 arayüz testi geçti. Mevcut oyun kurallarına ek olarak İmkânsız rakibin sekme hesabı, tam ekrana giriş/çıkış ve reddedilen istek, mobilde boyutlandırma, iki parmakla kontrol ve dokunma iptali denetlendi. ESLint denetimi sıfır hata ve sıfır uyarıyla geçti. JavaScript sözdizimi ve yerel dosya bağlantıları da denetlendi.
 
 Node.js 24 veya üzeri ve npm bulunan geliştirme bilgisayarında tüm denetimleri tekrar çalıştırmak için proje klasöründe:
 
@@ -108,6 +122,8 @@ Kaynakları değiştirince Windows'ta `scripts/package.cmd` dosyasına çift tı
 - Özel güçler açıkken bir simge topla; süreyi, raket etkisini ve üç topta ilk kaçanın tek sayı verdiğini göster.
 - Açık/koyu temayı değiştir; sayfayı yenileyince tercihin korunduğunu kontrol et.
 - Tarayıcıyı daralt; küçük ekranda okunabilirliği kontrol et.
+- Tam ekranı aç/kapat; telefonda dikey/yatay görünümü ve iki parmakla kontrolü dene.
+- İmkânsız seviyesini seç; rakibin duvar sekmelerinden sonra topun geliş noktasına yöneldiğini göster.
 - `docs/SUNUM_REHBERI.md` içindeki kişisel katkı sorularını kendi deneyimlerinle yanıtla. Bir değişiklik yaptıysan ZIP'i o son sürümden tekrar oluştur.
 - Yönergeye göre son tarih **28 Kasım 2026**, teslim yeri **Blackboard**, biçim **tek ZIP**. Sunumda aynı ZIP'ten çıkarılmış sürümü kullan.
 

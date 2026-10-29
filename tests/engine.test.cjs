@@ -206,4 +206,41 @@ test('Bilgisayar hızı da yavaşlatma etkisinden etkilenir', () => {
   e.ball.x = 700; e.ball.y = 100; e.ball.vx = 420; const y = e.right.y; e.update(0.02);
   assert.ok(e.right.y < y); assert.ok(y - e.right.y <= 445 * 0.6 * 0.02 + 0.001);
 });
+test('İmkânsız seviye daha hızlı servis ve hatasız hedefleme kullanır', () => {
+  const { e } = active({ mode: 'single', difficulty: 'impossible' });
+  assert.equal(e.config.difficulty, 'impossible'); assert.equal(e.ball.speed, 620);
+  assert.ok(box.Pong.LEVELS.impossible.speed > box.Pong.LEVELS.hard.speed);
+  assert.equal(box.Pong.LEVELS.impossible.error, 0);
+});
+test('İmkânsız rakip yukarı ve aşağı duvar sekmesini hesaplar', () => {
+  const { e } = active({ mode: 'single', difficulty: 'impossible' });
+  e.ball.x = e.right.x - BALL_RADIUS - 200; e.ball.vx = 200;
+  e.ball.y = 500; e.ball.vy = 200;
+  assert.ok(Math.abs(e.predictIntercept(e.ball) - 402) < 0.001);
+  e.ball.y = 40; e.ball.vy = -200;
+  assert.ok(Math.abs(e.predictIntercept(e.ball) - 178) < 0.001);
+  e.aiTimer = 0; e.moveComputer(0.01);
+  assert.ok(Math.abs(e.aiTarget - 178) < 0.001);
+});
+test('Öngörü birden çok duvar sekmesinden sonra da sahada kalır', () => {
+  const { e } = active({ mode: 'single', difficulty: 'impossible' });
+  e.ball.x = e.right.x - BALL_RADIUS - 200; e.ball.vx = 200;
+  e.ball.y = 200; e.ball.vy = 3000;
+  assert.ok(Math.abs(e.predictIntercept(e.ball) - 70) < 0.001);
+});
+test('İmkânsız rakip çoklu topta en erken gelen topa yönelir', () => {
+  const { e } = active({ mode: 'single', difficulty: 'impossible' });
+  e.activatePower('multiball', 0);
+  e.balls[0].x = 100; e.balls[0].y = 400; e.balls[0].vx = 200; e.balls[0].vy = 0;
+  e.balls[1].x = 800; e.balls[1].y = 120; e.balls[1].vx = 600; e.balls[1].vy = 0;
+  e.balls[2].vx = -400; e.aiTimer = 0; e.moveComputer(0.01);
+  assert.ok(Math.abs(e.aiTarget - 120) < 0.001);
+});
+test('İmkânsız rakip de yavaşlatma etkisine ve saha sınırlarına uyar', () => {
+  const { e } = active({ mode: 'single', difficulty: 'impossible' });
+  e.activatePower('slow', 0); e.ball.x = 800; e.ball.y = 30; e.ball.vx = 620; e.ball.vy = 0;
+  const y = e.right.y; e.moveComputer(0.02);
+  assert.ok(y - e.right.y <= 980 * 0.6 * 0.02 + 0.001);
+  assert.ok(e.right.y >= 0 && e.right.y + e.right.height <= HEIGHT);
+});
 console.log(`${passed} test passed.`);
