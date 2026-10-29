@@ -12,6 +12,10 @@ BİLP1117 Web Programlama I için HTML, CSS ve JavaScript ile hazırlanmış yer
 
 ## GitHub Pages yayını
 
+GitHub deposu: [emengin/emengin-pong-atolyesi](https://github.com/emengin/emengin-pong-atolyesi). Oyun için ayrılan özel adres: [pong.emengin.dev](https://pong.emengin.dev/). Ana alan adı `emengin.dev` kişisel site için ayrı tutulur. Özel adresin çalışması için Cloudflare DNS kaydı ve GitHub'ın HTTPS sertifikası hazır olmalıdır.
+
+Cloudflare'daki kayıt: `CNAME` türü, ad `pong`, hedef `emengin.github.io`, proxy `DNS only`, TTL `Auto`. Hedef bir alan adıdır; protokol veya depo yolu eklenmez. GitHub Pages özel alan adı `pong.emengin.dev` ve kaynak klasöründeki `CNAME` dosyası birlikte korunmalıdır.
+
 Proje GitHub Pages üzerinde de doğrudan statik dosyalarla yayınlanabilir. Yayın kaynağı `main` dalının kök klasörüdür. `.nojekyll` dosyası sayesinde Jekyll derlemesine gerek kalmaz. Yerel kullanım ve Pages aynı HTML, CSS ve JavaScript dosyalarını kullanır. Göreli dosya bağlantıları, projenin depo adına bağlı alt adreste açılmasını destekler.
 
 GitHub CLI ile giriş yapılıp kaynaklar depoya gönderildikten sonra Pages kaynağı etkinleştirilir. Sonraki değişiklikler `main` dalına gönderildiğinde yayın güncellenir. `node_modules`, `.env` dosyaları ve kurulum araçları yayın kaynaklarına dahil edilmez. Giriş bilgilerini kaynak dosyalarına ekleme.
