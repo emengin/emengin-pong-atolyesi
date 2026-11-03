@@ -34,7 +34,7 @@
   const selected = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
   const readConfig = () => ({ mode: selected('mode'), difficulty: selected('difficulty'), target: Number(selected('target')), powerups: $('powerups-toggle').checked });
   const difficultyNames = { easy: 'KOLAY', normal: 'NORMAL', hard: 'ZOR', impossible: 'İMKÂNSIZ' };
-  const difficultyNotes = { easy: 'Daha sakin tempo, alışmak için ideal.', normal: 'Dengeli tempo, keyifli bir rekabet.', hard: 'Hızlı top, daha çevik bir rakip.', impossible: 'Sekmeleri hesaplayan, çok hızlı bir rakip. Hazır mısın?' };
+  const difficultyNotes = { easy: 'Daha sakin tempo, alışmak için ideal.', normal: 'Dengeli tempo, keyifli bir rekabet.', hard: 'Hızlı top, daha çevik bir rakip.', impossible: 'Seninle aynı hızda; sekmeleri hesaplayarak oynar.' };
 
   function clearInput() {
     keys.clear();
@@ -290,11 +290,12 @@
     context.fillStyle = dark ? '#10271f' : '#18312b'; context.fillRect(0, 0, w, h);
     // Saha çizgileri sabit koordinatlarda çizilir; CSS yalnızca görünümü ölçekler.
     context.strokeStyle = '#3c5546'; context.lineWidth = 1;
-    context.strokeRect(20, 20, w - 40, h - 40);
-    context.beginPath(); context.setLineDash([6, 11]); context.moveTo(w / 2, 22); context.lineTo(w / 2, h - 22); context.stroke(); context.setLineDash([]);
+    const inset = Pong.COURT_INSET;
+    context.strokeRect(inset, inset, w - 2 * inset, h - 2 * inset);
+    context.beginPath(); context.setLineDash([6, 11]); context.moveTo(w / 2, inset + 2); context.lineTo(w / 2, h - inset - 2); context.stroke(); context.setLineDash([]);
     context.beginPath(); context.arc(w / 2, h / 2, 66, 0, Math.PI * 2); context.strokeStyle = '#304b3e'; context.stroke();
     context.fillStyle = '#aecb94'; context.globalAlpha = 0.35;
-    [[20, 20], [w - 24, 20], [20, h - 24], [w - 24, h - 24]].forEach(([x, y]) => context.fillRect(x, y, 4, 4));
+    [[inset, inset], [w - inset - 4, inset], [inset, h - inset - 4], [w - inset - 4, h - inset - 4]].forEach(([x, y]) => context.fillRect(x, y, 4, 4));
     context.globalAlpha = 1;
     if (!reducedMotion.matches) {
       trails.forEach(trail => trail.forEach((point, i) => {

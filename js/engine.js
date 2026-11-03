@@ -4,20 +4,29 @@
 
   const WIDTH = 960;
   const HEIGHT = 560;
+  const COURT_INSET = 20;
+  const PLAY_TOP = COURT_INSET + 1;
+  const PLAY_BOTTOM = HEIGHT - COURT_INSET - 1;
   const PADDLE_WIDTH = 14;
   const PADDLE_HEIGHT = 96;
   const BALL_RADIUS = 9;
   const PLAYER_SPEED = 510;
+  const BASE_BALL_SPEED = 460;
+  const MAX_BALL_SPEED = 930;
+  const MAX_TURBO_SPEED = 1200;
   const EFFECT_DURATION = 8;
   const TURBO_DURATION = 6;
   const TURBO_FACTOR = 1.35;
   const MAX_BALLS = 3;
+  const MULTIBALL_DURATION = 5;
+  const MULTIBALL_SPEED_FACTOR = 0.8;
+  const MULTIBALL_SPREAD = 0.22;
   const PICKUP_RADIUS = 28;
   const LEVELS = {
-    easy: { speed: 265, reaction: 0.23, error: 58, ballSpeed: 360 },
-    normal: { speed: 350, reaction: 0.14, error: 32, ballSpeed: 420 },
-    hard: { speed: 445, reaction: 0.075, error: 15, ballSpeed: 480 },
-    impossible: { speed: 980, reaction: 0.012, error: 0, ballSpeed: 620, predict: true }
+    easy: { speed: 265, reaction: 0.23, error: 58, ballSpeed: 400 },
+    normal: { speed: 350, reaction: 0.14, error: 32, ballSpeed: BASE_BALL_SPEED },
+    hard: { speed: 445, reaction: 0.075, error: 15, ballSpeed: 530 },
+    impossible: { speed: PLAYER_SPEED, reaction: 0.045, error: 6, ballSpeed: 680, predict: true }
   };
   const POWERUPS = {
     turbo: { title: 'Turbo top', glyph: '»', color: '#f3d77c', description: 'Tüm topları 6 saniye hızlandırır.', duration: TURBO_DURATION },
@@ -25,7 +34,7 @@
     grow: { title: 'Raketi büyüt', glyph: '+', color: '#d7edb0', description: 'Kendi raketini 8 saniye büyütür.', duration: EFFECT_DURATION },
     haste: { title: 'Hızlı raket', glyph: '↑', color: '#8ddfe7', description: 'Kendi raketini 8 saniye hızlandırır.', duration: EFFECT_DURATION },
     slow: { title: 'Rakibi yavaşlat', glyph: '↓', color: '#bfb1f4', description: 'Rakibin raketini 8 saniye yavaşlatır.', duration: EFFECT_DURATION },
-    multiball: { title: 'Çoklu top', glyph: '×3', color: '#f3ac7c', description: 'Top sayısını üçe çıkarır. İlk kaçan top sayı verir.', duration: null }
+    multiball: { title: 'Çoklu top', glyph: '×3', color: '#f3ac7c', description: '5 saniye üç top. Ek toplar daha yavaş ve dar açılıdır.', duration: MULTIBALL_DURATION }
   };
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -43,7 +52,7 @@
     get ball() { return this.balls[0]; }
 
     createBall() {
-      return { id: this.nextBallId++, x: WIDTH / 2, y: HEIGHT / 2, vx: 0, vy: 0, speed: 420, lastHit: null, boostRemaining: 0 };
+      return { id: this.nextBallId++, x: WIDTH / 2, y: HEIGHT / 2, vx: 0, vy: 0, speed: BASE_BALL_SPEED, lastHit: null, boostRemaining: 0, extraRemaining: null };
     }
 
     reset() {
@@ -86,14 +95,14 @@
       this.spawnTimer = 1.8;
       this.left.height = this.right.height = PADDLE_HEIGHT;
       this.left.speedMultiplier = this.right.speedMultiplier = 1;
-      this.left.y = clamp(this.left.y, 0, HEIGHT - PADDLE_HEIGHT);
-      this.right.y = clamp(this.right.y, 0, HEIGHT - PADDLE_HEIGHT);
+      this.left.y = clamp(this.left.y, PLAY_TOP, PLAY_BOTTOM - PADDLE_HEIGHT);
+      this.right.y = clamp(this.right.y, PLAY_TOP, PLAY_BOTTOM - PADDLE_HEIGHT);
     }
 
     prepareServe(direction, delay) {
       this.clearPowers();
       const ball = this.createBall();
-      ball.speed = this.config.mode === 'multi' ? 420 : LEVELS[this.config.difficulty].ballSpeed;
+      ball.speed = this.config.mode === 'multi' ? BASE_BALL_SPEED : LEVELS[this.config.difficulty].ballSpeed;
       const angle = this.random() * 0.7 - 0.35;
       ball.vx = Math.cos(angle) * ball.speed * direction;
       ball.vy = Math.sin(angle) * ball.speed;
@@ -161,12 +170,14 @@
       const oldY = ball.y;
       ball.x += ball.vx * dt;
       ball.y += ball.vy * dt;
-      if (ball.y < BALL_RADIUS && ball.vy < 0) {
-        ball.y = BALL_RADIUS + (BALL_RADIUS - ball.y);
+      const top = PLAY_TOP + BALL_RADIUS;
+      const bottom = PLAY_BOTTOM - BALL_RADIUS;
+      if (ball.y < top && ball.vy < 0) {
+        ball.y = top + (top - ball.y);
         ball.vy = -ball.vy;
         this.onEvent({ type: 'wall' });
-      } else if (ball.y > HEIGHT - BALL_RADIUS && ball.vy > 0) {
-        ball.y = HEIGHT - BALL_RADIUS - (ball.y - (HEIGHT - BALL_RADIUS));
+      } else if (ball.y > bottom && ball.vy > 0) {
+        ball.y = bottom - (ball.y - bottom);
         ball.vy = -ball.vy;
         this.onEvent({ type: 'wall' });
       }
@@ -180,7 +191,7 @@
         if (collisionY + BALL_RADIUS >= paddle.y && collisionY - BALL_RADIUS <= paddle.y + paddle.height) {
           const offset = clamp((collisionY - (paddle.y + paddle.height / 2)) / (paddle.height / 2), -1, 1);
           const angle = offset * Math.PI / 3;
-          ball.speed = Math.min(ball.boostRemaining > 0 ? 1100 : 850, ball.speed * 1.055 + 8);
+          ball.speed = Math.min(ball.boostRemaining > 0 ? MAX_TURBO_SPEED : MAX_BALL_SPEED, ball.speed * 1.055 + 8);
           ball.vx = Math.cos(angle) * ball.speed * (side === 0 ? 1 : -1);
           ball.vy = Math.sin(angle) * ball.speed;
           ball.x = plane + (side === 0 ? 0.1 : -0.1);
@@ -199,7 +210,7 @@
       const distance = PLAYER_SPEED * paddle.speedMultiplier * dt;
       let movement = clamp(direction, -1, 1) * distance;
       if (Number.isFinite(target) && direction === 0) movement = clamp(target - paddle.height / 2 - paddle.y, -distance, distance);
-      paddle.y = clamp(paddle.y + movement, 0, HEIGHT - paddle.height);
+      paddle.y = clamp(paddle.y + movement, PLAY_TOP, PLAY_BOTTOM - paddle.height);
     }
 
     moveComputer(dt) {
@@ -216,16 +227,17 @@
       }
       const distance = level.speed * this.right.speedMultiplier * dt;
       const desired = this.aiTarget - this.right.height / 2;
-      this.right.y = clamp(this.right.y + clamp(desired - this.right.y, -distance, distance), 0, HEIGHT - this.right.height);
+      this.right.y = clamp(this.right.y + clamp(desired - this.right.y, -distance, distance), PLAY_TOP, PLAY_BOTTOM - this.right.height);
     }
 
     predictIntercept(ball) {
       const flightTime = Math.max(0, (this.right.x - BALL_RADIUS - ball.x) / ball.vx);
-      const span = HEIGHT - 2 * BALL_RADIUS;
+      const top = PLAY_TOP + BALL_RADIUS;
+      const span = PLAY_BOTTOM - PLAY_TOP - 2 * BALL_RADIUS;
       // Yansıtılmış koordinat topun birden çok duvar sekmesini de hesaba katar.
-      const projected = ball.y - BALL_RADIUS + ball.vy * flightTime;
+      const projected = ball.y - top + ball.vy * flightTime;
       const folded = ((projected % (2 * span)) + 2 * span) % (2 * span);
-      return BALL_RADIUS + (folded > span ? 2 * span - folded : folded);
+      return top + (folded > span ? 2 * span - folded : folded);
     }
 
     updatePowers(dt) {
@@ -237,11 +249,13 @@
         for (const effect of expired) this.updateModifiers(effect.side);
       }
       for (const ball of this.balls) {
+        if (ball.extraRemaining !== null) ball.extraRemaining = Math.max(0, ball.extraRemaining - dt);
         if (ball.boostRemaining > 0) {
           ball.boostRemaining = Math.max(0, ball.boostRemaining - dt);
-          if (ball.boostRemaining === 0) this.changeBallSpeed(ball, Math.min(850, ball.speed / TURBO_FACTOR));
+          if (ball.boostRemaining === 0) this.changeBallSpeed(ball, Math.min(MAX_BALL_SPEED, ball.speed / TURBO_FACTOR));
         }
       }
+      this.balls = this.balls.filter(ball => ball.extraRemaining !== 0);
       this.pickups.forEach(pickup => { pickup.remaining -= dt; });
       this.pickups = this.pickups.filter(pickup => pickup.remaining > 0);
       this.spawnTimer -= dt;
@@ -277,19 +291,20 @@
       if (!POWERUPS[type] || ![0, 1].includes(side)) return;
       if (type === 'turbo') {
         for (const ball of this.balls) {
-          if (ball.boostRemaining <= 0) this.changeBallSpeed(ball, Math.min(1100, ball.speed * TURBO_FACTOR));
+          if (ball.boostRemaining <= 0) this.changeBallSpeed(ball, Math.min(MAX_TURBO_SPEED, ball.speed * TURBO_FACTOR));
           ball.boostRemaining = TURBO_DURATION;
         }
       } else if (type === 'multiball') {
         const angle = Math.atan2(source.vy, Math.abs(source.vx));
         const limit = Math.PI / 3;
-        const offsets = angle > limit - 0.4 ? [-0.4, -0.8] : angle < -limit + 0.4 ? [0.4, 0.8] : [-0.4, 0.4];
+        const spread = MULTIBALL_SPREAD;
+        const offsets = angle > limit - spread ? [-spread, -2 * spread] : angle < -limit + spread ? [spread, 2 * spread] : [-spread, spread];
         let cloneIndex = 0;
         while (this.balls.length < MAX_BALLS) {
-          const clone = { ...source, id: this.nextBallId++ };
+          const clone = { ...source, id: this.nextBallId++, speed: source.speed * MULTIBALL_SPEED_FACTOR, extraRemaining: MULTIBALL_DURATION };
           const rotated = clamp(angle + offsets[cloneIndex++ % 2], -limit, limit);
-          clone.vx = Math.cos(rotated) * source.speed * (source.vx < 0 ? -1 : 1);
-          clone.vy = Math.sin(rotated) * source.speed;
+          clone.vx = Math.cos(rotated) * clone.speed * (source.vx < 0 ? -1 : 1);
+          clone.vy = Math.sin(rotated) * clone.speed;
           this.balls.push(clone);
         }
       } else {
@@ -309,7 +324,7 @@
       const speed = this.effects.find(effect => effect.side === side && effect.slot === 'speed');
       paddle.height = PADDLE_HEIGHT * (size ? (size.type === 'grow' ? 1.6 : 0.62) : 1);
       paddle.speedMultiplier = speed ? (speed.type === 'haste' ? 1.5 : 0.6) : 1;
-      paddle.y = clamp(center - paddle.height / 2, 0, HEIGHT - paddle.height);
+      paddle.y = clamp(center - paddle.height / 2, PLAY_TOP, PLAY_BOTTOM - paddle.height);
     }
 
     changeBallSpeed(ball, speed) {
@@ -322,7 +337,7 @@
       const effects = this.effects.map(effect => ({ ...effect }));
       const turbo = Math.max(0, ...this.balls.map(ball => ball.boostRemaining));
       if (turbo > 0) effects.push({ type: 'turbo', side: null, remaining: turbo });
-      if (this.balls.length > 1) effects.push({ type: 'multiball', side: null, remaining: null });
+      if (this.balls.length > 1) effects.push({ type: 'multiball', side: null, remaining: Math.max(...this.balls.slice(1).map(ball => ball.extraRemaining)) });
       return effects;
     }
 
@@ -343,5 +358,5 @@
     }
   }
 
-  root.Pong = { Engine: PongEngine, WIDTH, HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT, BALL_RADIUS, LEVELS, POWERUPS, PICKUP_RADIUS, MAX_BALLS };
+  root.Pong = { Engine: PongEngine, WIDTH, HEIGHT, COURT_INSET, PLAY_TOP, PLAY_BOTTOM, PADDLE_WIDTH, PADDLE_HEIGHT, BALL_RADIUS, PLAYER_SPEED, BASE_BALL_SPEED, MAX_BALL_SPEED, MAX_TURBO_SPEED, LEVELS, POWERUPS, PICKUP_RADIUS, MAX_BALLS };
 })(typeof window !== 'undefined' ? window : globalThis);

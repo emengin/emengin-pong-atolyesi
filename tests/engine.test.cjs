@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const box = {};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../js/engine.js'), 'utf8'), box);
-const { Engine, WIDTH, HEIGHT, PADDLE_HEIGHT, BALL_RADIUS } = box.Pong;
+const { Engine, WIDTH, HEIGHT, PADDLE_HEIGHT, BALL_RADIUS, PLAY_TOP, PLAY_BOTTOM, PLAYER_SPEED, MAX_BALL_SPEED, MAX_TURBO_SPEED } = box.Pong;
 let passed = 0;
 function test(name, fn) { fn(); passed++; console.log('PASS ' + name); }
 function active(config = {}) {
@@ -24,13 +24,13 @@ test('Açılış sayımı tamamlanınca servis başlar', () => {
 });
 test('Raketler sahanın dışına çıkamaz', () => {
   const { e } = active(); run(e, 2, { left: -1, right: 1 });
-  assert.equal(e.left.y, 0); assert.equal(e.right.y, HEIGHT - PADDLE_HEIGHT);
+  assert.equal(e.left.y, PLAY_TOP); assert.equal(e.right.y, PLAY_BOTTOM - PADDLE_HEIGHT);
 });
 test('Üst ve alt duvarlar topu geri yansıtır', () => {
-  const { e } = active(); e.ball.y = BALL_RADIUS + 1; e.ball.vx = 50; e.ball.vy = -300;
-  e.update(0.02); assert.ok(e.ball.vy > 0); assert.ok(e.ball.y >= BALL_RADIUS);
-  e.ball.y = HEIGHT - BALL_RADIUS - 1; e.ball.vy = 300;
-  e.update(0.02); assert.ok(e.ball.vy < 0); assert.ok(e.ball.y <= HEIGHT - BALL_RADIUS);
+  const { e } = active(); e.ball.y = PLAY_TOP + BALL_RADIUS + 1; e.ball.vx = 50; e.ball.vy = -300;
+  e.update(0.02); assert.ok(e.ball.vy > 0); assert.ok(e.ball.y >= PLAY_TOP + BALL_RADIUS);
+  e.ball.y = PLAY_BOTTOM - BALL_RADIUS - 1; e.ball.vy = 300;
+  e.update(0.02); assert.ok(e.ball.vy < 0); assert.ok(e.ball.y <= PLAY_BOTTOM - BALL_RADIUS);
 });
 test('Raket ortası düz vuruş, kenarı açılı vuruş üretir', () => {
   for (const offset of [0, -36, 36]) {
@@ -42,10 +42,13 @@ test('Raket ortası düz vuruş, kenarı açılı vuruş üretir', () => {
     assert.ok(e.ball.speed > 420);
   }
 });
-test('En hızlı top raketin içinden geçmez', () => {
-  const { e } = active(); e.ball.x = 90; e.ball.y = HEIGHT / 2;
-  e.ball.speed = 850; e.ball.vx = -850; e.ball.vy = 0; e.update(0.05);
-  assert.ok(e.ball.vx > 0); assert.equal(e.rally, 1); assert.ok(e.ball.speed <= 850);
+test('Artırılmış normal ve turbo hızlarda top raketin içinden geçmez', () => {
+  for (const speed of [MAX_BALL_SPEED, MAX_TURBO_SPEED]) {
+    const { e } = active(); e.ball.x = 90; e.ball.y = HEIGHT / 2;
+    e.ball.speed = speed; e.ball.vx = -speed; e.ball.vy = 0;
+    e.ball.boostRemaining = speed === MAX_TURBO_SPEED ? 6 : 0; e.update(0.05);
+    assert.ok(e.ball.vx > 0); assert.equal(e.rally, 1); assert.ok(e.ball.speed <= speed);
+  }
 });
 test('Raketin dışından geçen top sayı verir ve ralli sıfırlanır', () => {
   const { e } = active(); e.ball.x = 25; e.ball.y = 70; e.ball.vx = -420; e.ball.vy = 0;
@@ -128,8 +131,8 @@ test('Hızlı raket gerçek hareket mesafesini artırır, yavaşlatma azaltır',
 test('Boyut etkisi merkez konumunu korur ve saha sınırında kalır', () => {
   const { e } = active(); const center = e.left.y + e.left.height / 2;
   e.activatePower('grow', 0); assert.ok(Math.abs(e.left.y + e.left.height / 2 - center) < 0.001);
-  e.left.y = HEIGHT - e.left.height; e.activatePower('shrink', 1);
-  assert.ok(e.left.y >= 0 && e.left.y + e.left.height <= HEIGHT);
+  e.left.y = PLAY_BOTTOM - e.left.height; e.activatePower('shrink', 1);
+  assert.ok(e.left.y >= PLAY_TOP && e.left.y + e.left.height <= PLAY_BOTTOM);
 });
 test('Büyüyen raketin yeni kenarı topa fiziksel olarak çarpar', () => {
   const { e } = active(); e.activatePower('grow', 0);
@@ -206,27 +209,27 @@ test('Bilgisayar hızı da yavaşlatma etkisinden etkilenir', () => {
   e.ball.x = 700; e.ball.y = 100; e.ball.vx = 420; const y = e.right.y; e.update(0.02);
   assert.ok(e.right.y < y); assert.ok(y - e.right.y <= 445 * 0.6 * 0.02 + 0.001);
 });
-test('İmkânsız seviye daha hızlı servis ve hatasız hedefleme kullanır', () => {
+test('İmkânsız seviye güçlü öngörü kullanır ama oyuncuyla aynı hareket hızındadır', () => {
   const { e } = active({ mode: 'single', difficulty: 'impossible' });
-  assert.equal(e.config.difficulty, 'impossible'); assert.equal(e.ball.speed, 620);
-  assert.ok(box.Pong.LEVELS.impossible.speed > box.Pong.LEVELS.hard.speed);
-  assert.equal(box.Pong.LEVELS.impossible.error, 0);
+  assert.equal(e.config.difficulty, 'impossible'); assert.equal(e.ball.speed, 680);
+  assert.equal(box.Pong.LEVELS.impossible.speed, PLAYER_SPEED);
+  assert.ok(box.Pong.LEVELS.impossible.error < box.Pong.LEVELS.hard.error);
 });
 test('İmkânsız rakip yukarı ve aşağı duvar sekmesini hesaplar', () => {
   const { e } = active({ mode: 'single', difficulty: 'impossible' });
   e.ball.x = e.right.x - BALL_RADIUS - 200; e.ball.vx = 200;
   e.ball.y = 500; e.ball.vy = 200;
-  assert.ok(Math.abs(e.predictIntercept(e.ball) - 402) < 0.001);
+  assert.ok(Math.abs(e.predictIntercept(e.ball) - 360) < 0.001);
   e.ball.y = 40; e.ball.vy = -200;
-  assert.ok(Math.abs(e.predictIntercept(e.ball) - 178) < 0.001);
+  assert.ok(Math.abs(e.predictIntercept(e.ball) - 220) < 0.001);
   e.aiTimer = 0; e.moveComputer(0.01);
-  assert.ok(Math.abs(e.aiTarget - 178) < 0.001);
+  assert.ok(Math.abs(e.aiTarget - 220) < 0.001);
 });
 test('Öngörü birden çok duvar sekmesinden sonra da sahada kalır', () => {
   const { e } = active({ mode: 'single', difficulty: 'impossible' });
   e.ball.x = e.right.x - BALL_RADIUS - 200; e.ball.vx = 200;
   e.ball.y = 200; e.ball.vy = 3000;
-  assert.ok(Math.abs(e.predictIntercept(e.ball) - 70) < 0.001);
+  assert.ok(Math.abs(e.predictIntercept(e.ball) - 200) < 0.001);
 });
 test('İmkânsız rakip çoklu topta en erken gelen topa yönelir', () => {
   const { e } = active({ mode: 'single', difficulty: 'impossible' });
@@ -240,7 +243,50 @@ test('İmkânsız rakip de yavaşlatma etkisine ve saha sınırlarına uyar', ()
   const { e } = active({ mode: 'single', difficulty: 'impossible' });
   e.activatePower('slow', 0); e.ball.x = 800; e.ball.y = 30; e.ball.vx = 620; e.ball.vy = 0;
   const y = e.right.y; e.moveComputer(0.02);
-  assert.ok(y - e.right.y <= 980 * 0.6 * 0.02 + 0.001);
-  assert.ok(e.right.y >= 0 && e.right.y + e.right.height <= HEIGHT);
+  assert.ok(y - e.right.y <= PLAYER_SPEED * 0.6 * 0.02 + 0.001);
+  assert.ok(e.right.y >= PLAY_TOP && e.right.y + e.right.height <= PLAY_BOTTOM);
+});
+test('Büyütme, küçültme ve süre bitişinde iki raket de çizginin içinde kalır', () => {
+  for (const side of [0, 1]) {
+    for (const edge of ['top', 'bottom']) {
+      const { e } = active(); const paddle = side === 0 ? e.left : e.right;
+      paddle.y = edge === 'top' ? PLAY_TOP : PLAY_BOTTOM - paddle.height;
+      const check = () => { assert.ok(paddle.y >= PLAY_TOP); assert.ok(paddle.y + paddle.height <= PLAY_BOTTOM); };
+      e.activatePower('grow', side); check();
+      e.activatePower('shrink', 1 - side); check();
+      e.updatePowers(8.01); check();
+      e.movePaddle(paddle, edge === 'top' ? -1 : 1, undefined, 2); check();
+    }
+  }
+});
+test('İmkânsız rakip ve oyuncu aynı etki altında aynı mesafeyi gider, ışınlanmaz', () => {
+  for (const power of [null, 'haste', 'slow']) {
+    const { e } = active({ mode: 'single', difficulty: 'impossible' });
+    if (power === 'haste') { e.activatePower(power, 0); e.activatePower(power, 1); }
+    if (power === 'slow') { e.activatePower(power, 0); e.activatePower(power, 1); }
+    e.ball.x = 800; e.ball.y = 50; e.ball.vx = 680; e.ball.vy = 0;
+    const start = e.left.y; e.movePaddle(e.left, -1, undefined, 0.02); e.moveComputer(0.02);
+    assert.ok(Math.abs(e.left.y - e.right.y) < 0.001);
+    assert.ok(start - e.right.y <= PLAYER_SPEED * e.right.speedMultiplier * 0.02 + 0.001);
+    const before = e.right.y; e.aiTimer = 0; e.ball.y = 500; e.moveComputer(0.05);
+    assert.ok(Math.abs(e.right.y - before) <= PLAYER_SPEED * e.right.speedMultiplier * 0.05 + 0.001);
+  }
+});
+test('Ek toplar yüzde 20 yavaş başlar, dar açıyla ayrılır ve 5 saniyede kaybolur', () => {
+  const { e } = active(); const original = e.ball; e.activatePower('multiball', 0);
+  for (const extra of e.balls.slice(1)) {
+    assert.ok(Math.abs(extra.speed / original.speed - 0.8) < 0.001);
+    assert.ok(Math.abs(Math.atan2(extra.vy, Math.abs(extra.vx))) <= 0.23);
+    assert.equal(extra.extraRemaining, 5);
+  }
+  assert.equal(e.getActiveEffects().find(effect => effect.type === 'multiball').remaining, 5);
+  e.updatePowers(5.01); assert.equal(e.balls.length, 1); assert.equal(e.ball, original);
+  assert.equal(e.score.join(':'), '0:0');
+});
+test('Duraklatmada çoklu top süresi donarken yeniden alınması süreyi sınırsız uzatmaz', () => {
+  const { e } = active(); e.activatePower('multiball', 0); e.pause(); run(e, 3);
+  assert.equal(e.balls[1].extraRemaining, 5); e.resume(); e.updatePowers(2);
+  e.activatePower('multiball', 0); assert.equal(e.balls[1].extraRemaining, 3);
+  e.updatePowers(3.01); assert.equal(e.balls.length, 1);
 });
 console.log(`${passed} test passed.`);

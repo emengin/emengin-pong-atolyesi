@@ -39,9 +39,9 @@ Telefon ve tabletlerde sahada parmağını sürükleyebilir veya büyük ok buto
 | Kolay | Daha sakin tempo ve daha fazla hata yapan bir rakip. |
 | Normal | Dengeli hız ve tepki süresi. |
 | Zor | Daha hızlı top ve daha çevik bir rakip. |
-| İmkânsız | Duvar sekmelerini hesaplayan, çok hızlı tepki veren bir rakip. |
+| İmkânsız | Seninle aynı hareket hızında, duvar sekmelerini hesaplayarak oynayan çok güçlü bir rakip. |
 
-İmkânsız rakip, çoklu topta kendisine en erken ulaşacak topa öncelik verir. Güç etkilerine ve saha sınırlarına uyar. İki kişilik modda zorluk seçimi kullanılmaz.
+İmkânsız rakip, çoklu topta kendisine en erken ulaşacak topa öncelik verir. Hareket hızı ve raket boyu oyuncuyla aynıdır; avantajını topun yönünü öngörerek sağlar. Hız ve boyut güçleri iki tarafa da aynı şekilde uygulanır. İki kişilik modda zorluk seçimi kullanılmaz.
 
 ## Özel güçler
 
@@ -54,9 +54,9 @@ Maçtan önce **Özel güçler** anahtarını açabilir veya klasik Pong için k
 | + | Raketi büyüt | Kendi raketini 8 saniye boyunca büyütür. |
 | ↑ | Hızlı raket | Kendi raketini 8 saniye boyunca hızlandırır. |
 | ↓ | Rakibi yavaşlat | Rakibin raketini 8 saniye boyunca yavaşlatır. |
-| ×3 | Çoklu top | Farklı açılarda üç top oluşturur; ilk kaçan top tek sayı verir. |
+| ×3 | Çoklu top | 5 saniye boyunca üç top; ek toplar %20 daha yavaş ve daha dar açıyla çıkar. İlk kaçan top tek sayı verir. |
 
-Kalan süreler sahanın altındaki etiketlerde görünür. Boyut ve hız etkisi birlikte çalışabilir. Aynı etki tekrar alınınca katlanmaz, süresi yenilenir. Aynı rakette büyütme/küçültme veya hızlandırma/yavaşlatma birbirinin yerini alır. Her sayıda, maç sonunda veya yeni maçta etkiler ve ek toplar temizlenir. Duraklatma güç sürelerini de dondurur. Bilgisayar da güç kazanabilir.
+Kalan süreler sahanın altındaki etiketlerde görünür. Çoklu topun süresi bitince ek toplar kaybolur ve ana topla devam edilir. Boyut ve hız etkisi birlikte çalışabilir. Aynı etki tekrar alınınca katlanmaz, süresi yenilenir. Aynı rakette büyütme/küçültme veya hızlandırma/yavaşlatma birbirinin yerini alır. Her sayıda, maç sonunda veya yeni maçta etkiler ve ek toplar temizlenir. Duraklatma güç sürelerini de dondurur. Bilgisayar da güç kazanabilir.
 
 ## Açık ve koyu tema
 

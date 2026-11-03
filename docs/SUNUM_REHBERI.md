@@ -35,7 +35,7 @@ Bu oturumda kullanıcı oyun olarak Pong'u seçti ve Word yönergesinin dikkate 
 
 Kullanıcının sonraki isteğiyle rastgele güç simgeleri, boyut/hız etkileri, çoklu top, açık/koyu tema ve ESLint eklendi. Topa son vuran oyuncunun gücü kazanması, etkilerin sınırlı süreli olması ve ilk kaçan topun tek sayı vermesi bu uygulamada belirlenen oyun kurallarıdır. Öğrenci bu kararları deneyerek değerlendirmelidir.
 
-Motor için 36 otomatik davranış testi ve DOM ortamında 21 arayüz testi geçti. ESLint sıfır hata ve uyarıyla tamamlandı. Yeni istekte tam ekran, İmkânsız seviyesi ve mobil kontrol düzeni eklendi. Görünüm veya ekran yönü değişince oyun duraklatılıp basılı girdiler temizlendi. İmkânsız rakip için yansıtılmış koordinat hesabıyla duvar sekmeleri tahmin edildi. Tarayıcı erişim servisi kullanılamadığı için gerçek tarayıcıdaki görsel ve giriş kontrolü tamamlanamadı. Son canlı kontrolü kendi bilgisayarında yapıp bulgularını ekle.
+Motor için 40 otomatik davranış testi ve DOM ortamında 23 arayüz testi geçti. ESLint sıfır hata ve uyarıyla tamamlandı. Yeni istekte tam ekran, İmkânsız seviyesi ve mobil kontrol düzeni eklendi. Görünüm veya ekran yönü değişince oyun duraklatılıp basılı girdiler temizlendi. İmkânsız rakip için yansıtılmış koordinat hesabıyla duvar sekmeleri tahmin edildi. Tarayıcı erişim servisi kullanılamadığı için gerçek tarayıcıdaki görsel ve giriş kontrolü tamamlanamadı. Son canlı kontrolü kendi bilgisayarında yapıp bulgularını ekle.
 
 AI aracı ve rolü: **OpenAI Codex**; şartları inceleme, fikirleri uygulama, HTML/CSS/JS üretimi, oyun motoru testleri ve açıklama dosyalarını hazırlama. Kullanılan başka bir araç varsa yalnız gerçekten kullandıklarını ekle.
 
@@ -74,15 +74,17 @@ AI aracı ve rolü: **OpenAI Codex**; şartları inceleme, fikirleri uygulama, H
 
 **Çarpışma:** Motor topun bir önceki ve yeni konumuyla raket düzlemini geçip geçmediğini bulur. Geçtiyse temas yüksekliğinin rakete denk gelip gelmediğini denetler. Temasın raket merkezine uzaklığı -1 ile +1 arasına dönüştürülür. Bu değer en fazla 60 derecelik dönüş açısına çevrilir. Yatay hız `cos(açı) × hız`, dikey hız `sin(açı) × hız` ile hesaplanır.
 
-**Hız:** Her raket vuruşunda yeni hız `eski hız × 1.055 + 8` olur; normalde en fazla 850, turbo etkisi sırasında en fazla 1100 piksel/saniyeye çıkar. Turbo ilk alındığında hız %35 artar, tekrar alınınca yalnız süresi yenilenir. Motor kare süresini 1/240 saniyelik küçük adımlara böler. Böylece hızlı topun raketin içinden geçmesi önlenir.
+**Hız:** Her raket vuruşunda yeni hız `eski hız × 1.055 + 8` olur; normalde en fazla 930, turbo etkisi sırasında en fazla 1200 piksel/saniyeye çıkar. Turbo ilk alındığında hız %35 artar, tekrar alınınca yalnız süresi yenilenir. Motor kare süresini 1/240 saniyelik küçük adımlara böler. Böylece hızlı topun raketin içinden geçmesi önlenir.
 
 **Güçler:** `pickups` dizisi sahadaki simgeleri, `effects` dizisi hedef oyuncuyu, etki türünü ve kalan saniyeyi tutar. Her top kendi `lastHit` değerini taşır. Top simgeye değince bu bilgiyle etki sahibini buluruz. Küçültme/yavaşlatma rakibe, büyütme/hızlandırma kendine uygulanır. Boyut ve hız ayrı alanlardır; aynı alanın karşıt etkileri birbirinin yerini alır. Süreler yalnız `playing` durumunda azalır.
 
-**Çoklu top:** `balls` dizisine iki farklı açıda kopya eklenir; sayı üçle sınırlıdır. Her topun çarpışması ayrı hesaplanır. Bir top çıkarsa `awardPoint()` çağrılır, o adım hemen sonlanır ve diğer toplar kaldırılır. Aynı karede birkaç topun çıkması skoru birkaç kez artırmaz.
+**Çoklu top:** `balls` dizisine iki dar açıda, başlangıçta %20 daha yavaş iki kopya eklenir; sayı üçle sınırlıdır. Ek toplar 5 saniye sonra kaldırılır, süre duraklatmada donar. Her topun çarpışması ayrı hesaplanır. Bir top çıkarsa `awardPoint()` çağrılır, o adım hemen sonlanır ve diğer toplar kaldırılır. Aynı karede birkaç topun çıkması skoru birkaç kez artırmaz.
 
 **Tema ve linter:** `theme.js` açılışta kayıtlı tercihi, yoksa sistem temasını uygular. CSS değişkenleri `data-theme` değerine göre değişir. ESLint oyunun bir parçası olarak çalışmaz; geliştirme sırasında kod hatalarını yakalayan bir denetim aracıdır. `npm run lint` önerilen kurallarla kodu tarar; `npm test` davranış testlerini çalıştırır.
 
 **Bilgisayar rakibi:** Topu anında kopyalamaz. Seçilen seviyeye göre tepki gecikmesi, en fazla hareket hızı ve hedef hatası bulunur. Top karşıya giderken takip eder, uzaklaşırken ortaya döner. Bu kod öğrenen bir model değildir; JavaScript ile yazılmış kurallı bir rakiptir.
+
+**Saha sınırı:** Çizim ve fizik aynı saha payını kullanır. Raketler görünür üst ve alt çizginin içinde kalır; büyütme, küçültme ve etki bitişinde de konum bu sınıra göre ayarlanır. İmkânsız rakibin hızı oyuncuyla eşittir; avantajı sekmeleri öngörmesidir.
 
 **Veri ve görünüm ayrımı:** `engine.js` HTML elemanlarına erişmez; koordinatları ve kuralları tutar. `app.js` ise motorun verilerini okuyarak Canvas ve HTML elemanlarını günceller. Bu ayrım çarpışmaları tarayıcıdan bağımsız sınamayı sağlar.
 

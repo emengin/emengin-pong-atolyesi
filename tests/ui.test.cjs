@@ -134,7 +134,7 @@ test('Çoklu toplar ve bütün güç simgeleri çizim yolunda hata üretmez', ({
 test('İmkânsız seçimi motora ve maç başlığına aktarılır', ({ $, doc, engine }) => {
   const radio = doc.querySelector('input[value="impossible"]'); radio.checked = true;
   radio.dispatchEvent(new doc.defaultView.Event('change', { bubbles: true }));
-  assert.match($('difficulty-note').textContent, /Sekmeleri/);
+  assert.match($('difficulty-note').textContent, /sekmeleri/i);
   $('overlay-button').click(); assert.equal(engine.config.difficulty, 'impossible');
   assert.match($('match-label').textContent, /İMKÂNSIZ/);
 });
@@ -198,6 +198,25 @@ test('Tarayıcı tam ekran isteğini reddederse oyun geniş görünümde açıl�
   assert.equal($('fullscreen-button').disabled, false);
   $('fullscreen-button').click(); await settle(); assert.ok(!$('arena-panel').classList.contains('is-expanded'));
 }, { fullscreen: 'denied' });
+
+test('Ekrana çizilen normal ve değişen boyutlu raketler saha çizgisini aşmaz', ({ $, win, engine, tick, drawCalls }) => {
+  $('overlay-button').click(); engine.state = 'playing';
+  for (const power of [null, 'grow', 'shrink']) {
+    if (power) engine.activatePower(power, power === 'shrink' ? 1 : 0);
+    engine.movePaddle(engine.left, 1, undefined, 2); tick();
+    const paddleDraw = drawCalls.filter(call => call[0] === 'fillRect' && call[1] === engine.left.x && call[3] === win.Pong.PADDLE_WIDTH).at(-1);
+    assert.ok(paddleDraw[2] >= win.Pong.PLAY_TOP);
+    assert.ok(paddleDraw[2] + paddleDraw[4] <= win.Pong.PLAY_BOTTOM);
+    const border = drawCalls.filter(call => call[0] === 'strokeRect').at(-1);
+    assert.equal(border[2], win.Pong.COURT_INSET);
+  }
+});
+test('Çoklu topun kalan süresi görünür ve bitince etiket ile ek toplar kalkar', ({ $, engine, tick }) => {
+  $('overlay-button').click(); engine.state = 'playing'; engine.activatePower('multiball', 0); tick();
+  assert.match($('active-effects').textContent, /Çoklu top.*5 sn/);
+  engine.updatePowers(5.01); tick(); assert.equal(engine.balls.length, 1);
+  assert.doesNotMatch($('active-effects').textContent, /Çoklu top/);
+});
 
 (async () => {
   for (const { name, fn, options } of cases) {
