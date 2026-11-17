@@ -1,71 +1,83 @@
 # Pong Atölyesi
 
-BİLP1117 Web Programlama I için HTML, CSS ve JavaScript ile hazırlanmış yerel Pong projesi. Zamanlamanı ve vuruş açını kullanarak rakibinden önce hedef skora ulaş. Bilgisayara karşı pratik yap veya aynı cihazda bir arkadaşınla oyna.
+Bilgisayara karşı veya aynı cihazda iki kişiyle oynanan, özel güçlerle zenginleştirilmiş bir Pong oyunu. Raketin temas noktasını kullanarak vuruş açısını değiştirin, ralliyi sürdürün ve hedef skora ilk ulaşan oyuncu olun.
 
-**[Oyunu aç → pong.emengin.dev](https://pong.emengin.dev/)**
+**[Hemen oynayın → pong.emengin.dev](https://pong.emengin.dev/)**
 
-## Nasıl oynanır
+Hesap, eklenti veya oyun kurulumu gerekmez. Dosyalar indirildikten sonra oyun çevrimdışı da çalışır.
 
-| İşlem | Kontrol |
-| --- | --- |
-| Tek oyuncuda sol raket | W / S veya yukarı / aşağı ok |
-| İki oyuncuda sol raket | W / S |
-| İki oyuncuda sağ raket | Yukarı / aşağı ok |
-| Duraklat ve devam et | Boşluk veya Duraklat düğmesi |
-| Dokunmatik kontrol | Sahada sürükleme veya alttaki oklar |
-| Fareyle kontrol | Sahaya basılı tutarak sürükleme |
-| Ses | Sağ üstteki Ses düğmesi |
-| Açık / koyu tema | Sağ üstteki tema düğmesi |
-| Tam ekran | Kort başlığındaki Tam ekran / Küçült düğmesi; çıkış için Esc de kullanılabilir |
+## Oyun özellikleri
 
-İki kişilik dokunmatik oyunda her oyuncu sahanın kendi yarısına dokunur; aynı anda iki parmak kullanılabilir. İki kişilik klavye oyununda bazı klavyelerin eşzamanlı tuş algılama sınırı olabilir; gerekirse fare/dokunmatik kontrol kullanılabilir.
+- **Tek oyuncu:** Kolay, Normal, Zor ve İmkânsız olmak üzere dört bilgisayar rakibi.
+- **Yerel iki oyuncu:** Aynı klavyede veya dokunmatik ekranda karşılıklı maç.
+- **Maç seçenekleri:** 5, 7 veya 11 sayılık karşılaşmalar; klasik veya özel güçlerin açık olduğu oyun.
+- **Açı kontrollü vuruşlar:** Raketin ortası düz, kenarları açılı vuruş üretir. Ralli uzadıkça top hızlanır.
+- **Altı özel güç:** Turbo top, raket büyütme/küçültme, raket hızlandırma/yavaşlatma ve üç toplu oyun.
+- **Masaüstü ve mobil:** Klavye, fare, çoklu dokunma, portre/yatay görünüm ve tam ekran.
+- **Kişisel tercihler:** Açık/koyu tema, isteğe bağlı ses ve bu cihazda saklanan en uzun ralli rekoru.
+- **Güvenli duraklatma:** Sekme odağı veya ekran yönü değiştiğinde maç duraklar. Yeni maç açılırken mevcut skor için onay istenir.
 
-İlk 5, 7 veya 11 sayıya ulaşan kazanır. Top rakibin arkasından çıktığında sayı alırsın. Raketin ortası düz, kenarları açılı vuruş üretir. Her raket temasında top biraz hızlanır; üst sınır vardır. Sayıdan sonra raketler ortalanır, kısa servis beklemesi olur. Oyun sırasında ayarlar kilitlenir; **Yeni maç** ile sıfırlamayı onaylayıp ayarları değiştirebilirsin. Sekme veya pencere odağı kaybolursa oyun duraklar.
+## Nasıl oynanır?
 
-Sesler Web Audio API ile üretilir; ses dosyası indirilmez. En uzun ralli, tarayıcı izin verirse `localStorage` içinde bu cihazda saklanır. Depolama engellense de oyun çalışır. Bu rekor farklı tarayıcılarda veya dosya konumlarında paylaşılmayabilir.
+Oyun modunu, zorluğu ve hedef skoru seçip **Maça başla** düğmesine basın. Topu rakibin arkasına geçiren oyuncu sayı kazanır. Hedefe ilk ulaşan maçı kazanır.
 
-## Tam ekran ve mobil kullanım
+| Kontrol                               | İşlev                                    |
+| ------------------------------------- | ---------------------------------------- |
+| W / S                                 | Sol raket                                |
+| ↑ / ↓                                 | Tek oyuncuda sol, iki oyuncuda sağ raket |
+| Boşluk                                | Duraklat / devam et                      |
+| Sahada fareyle sürükleme              | Raket hareketi                           |
+| Dokunarak sürükleme veya ok düğmeleri | Mobil raket kontrolü                     |
+| Tam ekran / Küçült                    | Kort görünümünü büyütme / küçültme       |
 
-Kort başlığındaki **Tam ekran** düğmesi oyunu skor, güç göstergeleri ve kontrolleriyle birlikte büyütür. **Küçült** düğmesi veya **Esc** ile normal görünüme dönülür. Tam ekranı desteklemeyen tarayıcılarda oyun pencereyi kaplayan bir görünümde açılır.
+İki kişilik dokunmatik maçta her oyuncu sahanın kendi yarısını kullanır. İmkânsız rakip duvar sekmelerini hesaplar; raket boyu ve hareket hızı oyuncuyla aynıdır. İki oyunculu modda zorluk seçimi kullanılmaz.
 
-Görünüm veya ekran yönü değişince oyun duraklar. Skor ve aktif güçlerin süreleri korunur; **Oyuna dön** ile devam edilir.
+### Özel güçler
 
-Telefon ve tabletlerde sahada parmağını sürükleyebilir veya büyük ok butonlarına basılı tutabilirsin. İki kişilik maçta iki parmakla iki raket aynı anda kontrol edilebilir. Yatay tam ekran görünümünde oklar kortun iki yanına taşınır. Dikey görünümde de oynanabilir; daha geniş bir kort için telefonu yatay çevirebilirsin.
+Bir güç simgesine top değdiğinde, etkiyi o topa son vuran oyuncu kazanır. Kalan süreler sahanın altında görünür. **Özel güçler** anahtarı kapatılarak klasik Pong oynanabilir.
 
-## Zorluk seviyeleri
+| Güç                           | Etki                                                           |
+| ----------------------------- | -------------------------------------------------------------- |
+| Turbo top                     | Topları 6 saniye hızlandırır.                                  |
+| Raketi büyüt / Rakibi küçült  | İlgili raketin boyunu 8 saniye değiştirir.                     |
+| Hızlı raket / Rakibi yavaşlat | İlgili raketin hızını 8 saniye değiştirir.                     |
+| Çoklu top                     | 5 saniyeliğine üç top oluşturur; ilk kaçan top tek sayı verir. |
 
-| Seviye | Rakip |
-| --- | --- |
-| Kolay | Daha sakin tempo ve daha fazla hata yapan bir rakip. |
-| Normal | Dengeli hız ve tepki süresi. |
-| Zor | Daha hızlı top ve daha çevik bir rakip. |
-| İmkânsız | Seninle aynı hareket hızında, duvar sekmelerini hesaplayarak oynayan çok güçlü bir rakip. |
+Her sayıda etkiler temizlenir. Duraklatma güç sürelerini de dondurur; aynı etki yeniden alındığında süre yenilenir.
 
-İmkânsız rakip, çoklu topta kendisine en erken ulaşacak topa öncelik verir. Hareket hızı ve raket boyu oyuncuyla aynıdır; avantajını topun yönünü öngörerek sağlar. Hız ve boyut güçleri iki tarafa da aynı şekilde uygulanır. İki kişilik modda zorluk seçimi kullanılmaz.
+## Kullanılan teknolojiler
 
-## Özel güçler
+| Teknoloji                        | Kullanım                                                              |
+| -------------------------------- | --------------------------------------------------------------------- |
+| HTML5 ve Canvas 2D               | Oyun sahası, raketler, toplar ve efektlerin çizimi                    |
+| CSS                              | Duyarlı yerleşim, açık/koyu tema, tam ekran ve dokunmatik kontroller  |
+| JavaScript                       | Top fiziği, çarpışmalar, rakip yapay zekâsı, özel güçler ve maç akışı |
+| Pointer Events ve Fullscreen API | Fare/dokunma girdisi ve desteklenen tarayıcılarda tam ekran           |
+| Web Audio API                    | Dosya indirmeden üretilen oyun sesleri                                |
+| localStorage                     | Yalnızca bu tarayıcıdaki tema tercihi ve en uzun ralli rekoru         |
+| Node.js, ESLint ve jsdom         | Geliştirme sırasında kod denetimi ve otomatik motor/arayüz testleri   |
 
-Maçtan önce **Özel güçler** anahtarını açabilir veya klasik Pong için kapatabilirsin. Açıkken ilk güç yaklaşık 2 saniye sonra, diğerleri 4–6 saniye arayla sahanın rastgele yerlerinde çıkar. Aynı anda en fazla iki simge görünür; toplanmayan simge 12 saniye sonra kaybolur. Simgeye top değdiğinde etkiyi **o topa son vuran oyuncu** kazanır. Raket teması olmadan servis topu güç toplayamaz.
+Oyun çalışırken üçüncü taraf JavaScript kütüphanesi, CDN, uzak font, analiz aracı veya sunucu bağlantısı kullanılmaz. Görseller kodla çizilir, sesler tarayıcıda üretilir.
 
-| Simge | Güç | Etki |
-| --- | --- | --- |
-| » | Turbo top | Tüm topları 6 saniye boyunca hızlandırır. |
-| − | Rakibi küçült | Rakibin raketini 8 saniye boyunca küçültür. |
-| + | Raketi büyüt | Kendi raketini 8 saniye boyunca büyütür. |
-| ↑ | Hızlı raket | Kendi raketini 8 saniye boyunca hızlandırır. |
-| ↓ | Rakibi yavaşlat | Rakibin raketini 8 saniye boyunca yavaşlatır. |
-| ×3 | Çoklu top | 5 saniye boyunca üç top; ek toplar %20 daha yavaş ve daha dar açıyla çıkar. İlk kaçan top tek sayı verir. |
+## Çevrimdışı oynama
 
-Kalan süreler sahanın altındaki etiketlerde görünür. Çoklu topun süresi bitince ek toplar kaybolur ve ana topla devam edilir. Boyut ve hız etkisi birlikte çalışabilir. Aynı etki tekrar alınınca katlanmaz, süresi yenilenir. Aynı rakette büyütme/küçültme veya hızlandırma/yavaşlatma birbirinin yerini alır. Her sayıda, maç sonunda veya yeni maçta etkiler ve ek toplar temizlenir. Duraklatma güç sürelerini de dondurur. Bilgisayar da güç kazanabilir.
+GitHub'da **Code → Download ZIP** ile dosyaları indirin, arşivin tamamını çıkarın ve `index.html` dosyasını açın. `assets`, `css` ve `js` klasörlerini aynı dizinde tutun. Oynamak için Node.js veya npm kurulumu gerekmez.
 
-## Açık ve koyu tema
+## Geliştirme ve doğrulama
 
-Sağ üstteki **Koyu tema / Açık tema** düğmesi görünümü değiştirir. İlk açılışta sistem tercihi kullanılır; kendi seçimin tarayıcıda kaydedilir ve sonraki açılışta korunur. Tema değişikliği maçı veya skoru sıfırlamaz.
+Geliştirme araçları için Node.js 24 LTS önerilir:
 
-## Bilgisayarda çalıştırma
+```sh
+npm ci
+npm run lint
+npm test
+npm audit
+```
 
-1. Proje dosyalarını bir klasöre çıkar.
-2. `index.html` dosyasını tarayıcıda aç.
-3. Oyun modunu, zorluğu ve hedef skoru seç; **Maça başla** düğmesine bas.
+Geliştirme bağımlılıkları oyunun çalışması için gerekli değildir. Oyun motoru `js/engine.js`, çizim ve maç arayüzü `js/app.js`, tema `js/theme.js`, tam ekran davranışı `js/display.js` içindedir.
 
-Oynamak için internet bağlantısı, kurulum veya hesap gerekmez. Dosyaları aynı klasör yapısında tutman yeterli.
+## Gizlilik ve güvenlik
+
+Oyun hesap açmaz ve oyuncu verilerini bir sunucuya göndermez. Tema ve ralli rekoru bu tarayıcıda saklanır; site verileri temizlenerek silinebilir. Yayın adresini açarken barındırma hizmeti standart bağlantı bilgilerini işleyebilir.
+
+Güvenlik bildirimleri için [güvenlik politikasına](SECURITY.md) bakın. Bilinen bağımlılık uyarıları `npm audit` ile kontrol edilebilir; hiçbir yazılım için koşulsuz güvenlik garantisi verilmez.

@@ -36,6 +36,18 @@
   const difficultyNames = { easy: 'KOLAY', normal: 'NORMAL', hard: 'ZOR', impossible: 'İMKÂNSIZ' };
   const difficultyNotes = { easy: 'Daha sakin tempo, alışmak için ideal.', normal: 'Dengeli tempo, keyifli bir rekabet.', hard: 'Hızlı top, daha çevik bir rakip.', impossible: 'Seninle aynı hızda; sekmeleri hesaplayarak oynar.' };
 
+  function settingsNote(first, second) {
+    $('settings-note').replaceChildren(document.createTextNode(first), document.createElement('br'), document.createTextNode(second));
+  }
+
+  function iconLabel(id, text, icon, iconFirst = false) {
+    const symbol = document.createElement('span');
+    symbol.setAttribute('aria-hidden', 'true');
+    symbol.textContent = icon;
+    const label = document.createTextNode(iconFirst ? ` ${text}` : `${text} `);
+    $(id).replaceChildren(...(iconFirst ? [symbol, label] : [label, symbol]));
+  }
+
   function clearInput() {
     keys.clear();
     pointers.clear();
@@ -110,7 +122,7 @@
     $('overlay-hint').textContent = matchMedia('(pointer: coarse)').matches
       ? 'Sahada sürükle veya alttaki okları kullan'
       : multi ? 'Sol raket: W / S · Sağ raket: ↑ / ↓' : 'W / S veya ↑ / ↓ ile hareket et';
-    $('settings-note').innerHTML = `Ayarlarını seç, korta çık.<br>İlk ${config.target} sayıya ulaşan maçı alır.`;
+    settingsNote('Ayarlarını seç, korta çık.', `İlk ${config.target} sayıya ulaşan maçı alır.`);
     if (engine.state === 'ready' || engine.state === 'ended') {
       engine.config = config;
       $('match-label').textContent = `${multi ? 'İKİ OYUNCU' : 'TEK OYUNCU'} · ${multi ? 'DOSTLUK MAÇI' : difficultyNames[config.difficulty]} · ${config.target} SAYI`;
@@ -122,7 +134,8 @@
 
   function lockSettings(locked) {
     document.querySelectorAll('input[name="mode"],input[name="difficulty"],input[name="target"],#powerups-toggle').forEach((input) => { input.disabled = locked; });
-    $('settings-note').innerHTML = locked ? 'Ayarları değiştirmek için<br>“Yeni maç” düğmesine bas.' : `Ayarlarını seç, korta çık.<br>İlk ${readConfig().target} sayıya ulaşan maçı alır.`;
+    if (locked) settingsNote('Ayarları değiştirmek için', '“Yeni maç” düğmesine bas.');
+    else settingsNote('Ayarlarını seç, korta çık.', `İlk ${readConfig().target} sayıya ulaşan maçı alır.`);
   }
 
   function startMatch() {
@@ -155,7 +168,7 @@
     restartPending = true;
     // İkinci tıklama yerine oyun içindeki açık onay, yanlışlıkla skor kaybını önler.
     showOverlay('YENİ BİR BAŞLANGIÇ', 'Skor sıfırlansın mı?', 'Yeni maça geçersen mevcut skor silinir.', 'Evet, maçı sıfırla', 'Vazgeçmek için “Devam et” düğmesine bas.');
-    $('pause-button').innerHTML = '<span aria-hidden="true">▷</span> Devam et';
+    iconLabel('pause-button', 'Devam et', '▷', true);
     $('pause-button').disabled = false;
     $('game-status').textContent = 'Yeni maç onayı bekleniyor.';
   }
@@ -178,7 +191,7 @@
     $('overlay-tag').textContent = tag;
     $('overlay-title').textContent = title;
     $('overlay-copy').textContent = copy;
-    $('overlay-button').innerHTML = `${button} <span aria-hidden="true">↗</span>`;
+    iconLabel('overlay-button', button, '↗');
     $('overlay-hint').textContent = hint;
   }
 
@@ -191,7 +204,9 @@
       lastScore = engine.score.join(':');
     }
     if (lastRally !== engine.rally) {
-      $('rally-count').innerHTML = `${engine.rally} <small>vuruş</small>`;
+      const unit = document.createElement('small');
+      unit.textContent = 'vuruş';
+      $('rally-count').replaceChildren(document.createTextNode(`${engine.rally} `), unit);
       $('rally-fill').style.width = `${Math.min(engine.rally / 20 * 100, 100)}%`;
       lastRally = engine.rally;
     }
@@ -202,7 +217,7 @@
     if (state !== lastState) {
       $('pause-button').disabled = ['ready', 'ended'].includes(state);
       $('restart-button').disabled = state === 'ready';
-      $('pause-button').innerHTML = state === 'paused' ? '<span aria-hidden="true">▷</span> Devam et' : '<span aria-hidden="true">Ⅱ</span> Duraklat';
+      iconLabel('pause-button', state === 'paused' ? 'Devam et' : 'Duraklat', state === 'paused' ? '▷' : 'Ⅱ', true);
       if (state === 'ready') {
         showOverlay('KORT SENİN', 'İlk servis senden.', `Raketini hazırla. İlk ${readConfig().target} sayıya ulaşan kazanır.`, 'Maça başla', '');
         syncSettings();

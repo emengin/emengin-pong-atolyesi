@@ -2,6 +2,8 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; font-src 'self'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="Pong Atölyesi: tek başına veya bir arkadaşınla oynayabileceğin, çevrimdışı çalışan bir masa tenisi oyunu.">
   <meta name="theme-color" content="#f6f4ec">
@@ -18,7 +20,7 @@
   <div class="page-shell">
     <header class="site-header">
       <a class="brand" href="#" aria-label="Pong Atölyesi ana sayfa"><span class="brand-mark" aria-hidden="true"><i></i><b></b><i></i></span>PONG<span class="brand-light">ATÖLYESİ</span></a>
-      <div class="header-right"><span class="edition">BİLP1117 · WEB PROGRAMLAMA I</span><div class="header-toggles"><button class="theme-button" id="theme-button" type="button" aria-pressed="false" title="Koyu temayı aç"><span id="theme-icon" aria-hidden="true">☾</span> <span id="theme-label">Koyu tema</span></button><button class="sound-button" id="sound-button" type="button" aria-pressed="false" title="Oyun seslerini aç">Ses <span id="sound-label">kapalı</span><span aria-hidden="true" class="sound-icon">♫</span></button></div></div>
+      <div class="header-right"><span class="edition">TEK OYUNCU · YEREL İKİ OYUNCU</span><div class="header-toggles"><button class="theme-button" id="theme-button" type="button" aria-pressed="false" title="Koyu temayı aç"><span id="theme-icon" aria-hidden="true">☾</span> <span id="theme-label">Koyu tema</span></button><button class="sound-button" id="sound-button" type="button" aria-pressed="false" title="Oyun seslerini aç">Ses <span id="sound-label">kapalı</span><span aria-hidden="true" class="sound-icon">♫</span></button></div></div>
     </header>
 
     <main>
@@ -64,7 +66,7 @@
       <section class="power-guide" aria-labelledby="power-guide-title"><div class="power-guide-intro"><div><p class="eyebrow">RALLİYE BİR SÜRPRİZ KAT</p><h2 id="power-guide-title">Gücü yakala.<br><em>Oyunu değiştir.</em></h2></div><p>Sahada beliren simgelere topu değdir. Gücü, o topa son vuran oyuncu kazanır. Raket etkileri 8, turbo 6 saniye sürer; her sayıda güçler sıfırlanır.</p></div><div id="power-legend" class="power-legend"></div><p class="power-rule">Çoklu top: 5 saniye, en fazla 3 top. Ek toplar %20 daha yavaş ve dar açıyla çıkar. İlk kaçan top tek sayı verir; süre bitince yalnız ana top kalır. Aynı özellik üst üste birikmez; süresi yenilenir. Karşıt etki öncekinin yerini alır.</p></section>
       <details class="about-project"><summary>Oyunun arkasında ne var? <span aria-hidden="true">+</span></summary><div><p>Bu Pong yorumu; refleks, zamanlama ve açı seçimini küçük bir oyun deneyimine dönüştürür. Tek oyunculu modda pratik yapabilir, iki oyunculu modda aynı cihazda rekabet edebilirsin.</p><p>HTML sayfanın yapısını, CSS görünümünü, JavaScript ise klavye ve dokunma girdilerini, bilgisayar rakibini, çarpışmaları ve skor akışını yönetir. Raketin hangi noktasına vurduğun topun dönüş açısını değiştirir.</p></div></details>
     </main>
-    <footer class="site-footer"><span>PONG ATÖLYESİ <span class="footer-cross">×</span> BİLP1117</span><span>Bir mola ver. Bir ralli daha oyna. <span aria-hidden="true">↗</span></span></footer>
+    <footer class="site-footer"><span>PONG ATÖLYESİ <span class="footer-cross">×</span> EMENGİN</span><span>Bir mola ver. Bir ralli daha oyna. <span aria-hidden="true">↗</span></span></footer>
   </div>
 </body>
 </html>
